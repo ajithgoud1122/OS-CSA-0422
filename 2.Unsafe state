@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define NUM_PROCESSES 4
+#define NUM_RESOURCES 3
+
+int main() {
+    int claim[NUM_PROCESSES][NUM_RESOURCES] = {
+        {3, 2, 2},
+        {6, 1, 3},
+        {3, 1, 4},
+        {4, 2, 2}
+    };
+    int allocation[NUM_PROCESSES][NUM_RESOURCES] = {
+        {1, 0, 0},
+        {6, 1, 2},
+        {2, 1, 1},
+        {0, 0, 2}
+    };
+    int available[NUM_RESOURCES] = {9, 3, 6};
+    bool finish[NUM_PROCESSES] = {false};
+
+    int work[NUM_RESOURCES];
+    for (int i = 0; i < NUM_RESOURCES; i++) {
+        work[i] = available[i];
+    }
+
+    int safeSequence[NUM_PROCESSES];
+    int numSafe = 0;
+
+    bool found = true;
+    while (numSafe < NUM_PROCESSES && found) {
+        found = false;
+        for (int i = 0; i < NUM_PROCESSES; i++) {
+            if (!finish[i]) {
+                bool canRun = true;
+                for (int j = 0; j < NUM_RESOURCES; j++) {
+                    if (claim[i][j] - allocation[i][j] > work[j]) {
+                        canRun = false;
+                        break;
+                    }
+                }
+                if (canRun) {
+                    found = true;
+                    finish[i] = true;
+                    safeSequence[numSafe++] = i;
+                    for (int j = 0; j < NUM_RESOURCES; j++) {
+                        work[j] += allocation[i][j];
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    if (numSafe == NUM_PROCESSES) {
+        printf("System is in safe state. Safe sequence: ");
+        for (int i = 0; i < NUM_PROCESSES; i++) {
+            printf("%d ", safeSequence[i]);
+        }
+        printf("\n");
+    } else {
+        printf("System is in unsafe state.\n");
+    }
+
+    return 0;
+}
