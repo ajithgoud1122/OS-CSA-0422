@@ -1,0 +1,49 @@
+#include <stdio.h>
+
+#define NUM_PARTITIONS 6
+
+int main() {
+    int partitions[NUM_PARTITIONS] = {300, 600, 350, 200, 750, 125};
+    int num_processes = 5;
+    int processes[] = {115, 500, 358, 200, 375};
+    int allocations[num_processes];
+    
+    // Initialize allocations to -1 (unallocated)
+    for (int i = 0; i < num_processes; i++) {
+        allocations[i] = -1;
+    }
+    
+    // Allocate each process to the best-fit partition
+    for (int i = 0; i < num_processes; i++) {
+        int best_partition = -1;
+        int best_size_diff = -1;
+        
+        // Find the best-fit partition for the current process
+        for (int j = 0; j < NUM_PARTITIONS; j++) {
+            int size_diff = partitions[j] - processes[i];
+            if (size_diff >= 0 && (best_partition == -1 || size_diff < best_size_diff)) {
+                best_partition = j;
+                best_size_diff = size_diff;
+            }
+        }
+        
+        // Allocate the current process to the best-fit partition
+        if (best_partition != -1) {
+            allocations[i] = best_partition;
+            partitions[best_partition] -= processes[i];
+        }
+    }
+    
+    // Print the allocations
+    printf("Process allocations:\n");
+    for (int i = 0; i < num_processes; i++) {
+        printf("Process %d: ", i + 1);
+        if (allocations[i] != -1) {
+            printf("Partition %d (%d KB)\n", allocations[i] + 1, processes[i]);
+        } else {
+            printf("Not allocated\n");
+        }
+    }
+    
+    return 0;
+}
